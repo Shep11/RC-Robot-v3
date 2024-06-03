@@ -1,6 +1,7 @@
 import socket
 import pygame
 import pickle
+import car
 import cv2
 from pygame.locals import *
 
@@ -38,28 +39,6 @@ for i in range (pygame.joystick.get_count()):
     joysticks.append(pygame.joystick.Joystick(i))
     
     print("detected joystick " + joysticks[-1].get_name())
-
-#gets a joystick to use for the robot
-sticks = 0
-while True:
-    print("joysticks: ")
-
-    for i in joysticks:
-        print(str(sticks) + " " + i.get_name())
-        sticks += 1
-
-    next = int(input("whitch joystick?"))
-
-    if (next >= 0 and next <= sticks):
-        stick = joysticks[next]
-        break
-    elif(next == -1 ):
-        print("Exiting program")
-        exit()
-    else:
-        print("invalid joystick")
-
-stick.init()
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -133,12 +112,40 @@ def handle_client(conn, addr):
         
     conn.close()
 
+def createCar(conn, addr):
+    cool = 0
+    print("joysticks: ")
+    for i in joysticks:
+        print(str(cool) + " " + i.get_name())
+        cool += 1
+    
+    while True:
+        next = int(input("whitch joystick?"))
+        if (next >= 0 and next < cool):
+            stick = joysticks[next]
+            break
+        else:
+            print("invalid joystick")
+
+    stick.init()
+
+    name = input("Enter a name: ")
+
+    return car(conn, addr, stick, name)
+
 def start():
     server.listen()
     print(f"[LISTENTING] Server is listenting on {SERVER}")
+    cars = []
     while True:
         conn, addr = server.accept()
-        handle_client(conn, addr)
+        cars.append(createCar(conn, addr))
+        check = input("connected everyone? ")
+        if (check[0] == 'y'):
+            break
+    while True:
+        for c in cars:
+            c.update()
 
 print("[Starring] starting the server ...")
 start()
