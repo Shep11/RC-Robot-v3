@@ -45,7 +45,7 @@ class car:
 
         if msg == IMGTEXT:
             img = pickle.loads(recieve(self.conn))
-            cv2.imshow("result.jpg", img)
+            cv2.imshow(f"car {self.name}", img)
         
         elif msg == DISCONNECT_MESSAGE:
             self.conn.close()

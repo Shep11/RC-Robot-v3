@@ -146,6 +146,8 @@ def start():
     while True:
         for c in cars:
             c.update()
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
 print("[Starring] starting the server ...")
 start()

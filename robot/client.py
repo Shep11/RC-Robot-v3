@@ -21,7 +21,7 @@ cap = cv2.VideoCapture(0)
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-def send(msg):
+def update(msg):
     message = msg
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
@@ -66,11 +66,11 @@ def send(msg):
 
 
 ret, frame = cap.read()
-send(pickle.dumps(frame))
+update(pickle.dumps(frame))
 input()
 while cap.isOpened():
     ret, frame = cap.read()
-    send(pickle.dumps(frame))
+    update(pickle.dumps(frame))
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 cap.release()
