@@ -5,6 +5,8 @@ from pygame.locals import *
 
 IMGTEXT = "!IMG"
 DISCONNECT_MESSAGE = "!DISCONNECT"
+GO_VAL = "!GO"
+STEER_VAL = "!STEER"
 FORMAT = 'utf-8'
 HEADER = 64
 
@@ -74,4 +76,11 @@ class car:
                         self.go = 0
             if event.type == QUIT:
                 pygame.quit()
+        
+        send(GO_VAL, self.conn)
+        send(self.go, self.conn)
+        send(STEER_VAL, self.conn)
+        send(self.steer, self.conn)
+
+        return True
         
