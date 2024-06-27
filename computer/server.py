@@ -35,15 +35,15 @@ pygame.joystick.init()
 #gets a list of joysticks connected to the pc
 joysticks = []
 for i in range (pygame.joystick.get_count()):
-    
+    #adds a joystick to the list and prints out it name
     joysticks.append(pygame.joystick.Joystick(i))
-    
     print("detected joystick " + joysticks[-1].get_name())
 
-
+#starts the server on the address
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+#
 def controler_MSG(conn, addr):
     global go
     global steer
