@@ -145,7 +145,8 @@ def start():
             break
     while True:
         for c in cars:
-            c.update()
+            if c.update() == False:
+                cars.remove(c)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
