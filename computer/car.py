@@ -29,8 +29,10 @@ def recieve(conn):
                 msgb += pack
             pack = conn.recv(msg_length)
             msgb += pack
+            return msgb
         else:
             msg = conn.recv(msg_length)
+            return msg
 
 
 
