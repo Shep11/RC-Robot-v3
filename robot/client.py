@@ -1,6 +1,7 @@
 import cv2
 import socket
 import pickle
+from gpiozero import Motor
 
 HEADER = 64
 PORT = 5050
