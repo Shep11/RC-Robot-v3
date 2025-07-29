@@ -1,6 +1,7 @@
 import cv2
 import socket
 import pickle
+import lgpio
 
 HEADER = 64
 PORT = 5050
@@ -10,11 +11,20 @@ SERVER = "192.168.7.56"
 ADDR = (SERVER, PORT)
 
 #these are the motors I will be using for the robot
-motorS = Motor(24, 23)
-motorG = Motor(17, 27)
+FORWARD = 17
+BACKWARD = 22
+LEFT = 23
+RIGHT = 24
+FREQ = 1000
 
 go = 0.0
 steer = 0.0
+h = lgpio.gpiochip_open(0)
+
+lgpio.gpio_claim_output(h, FORWARD)
+lgpio.gpio_claim_output(h, BACKWARD)
+lgpio.gpio_claim_output(h, LEFT)
+lgpio.gpio_claim_output(h, RIGHT)
 
 cap = cv2.VideoCapture(0)
 
@@ -36,16 +46,22 @@ def send(msg):
         go = float(msg)
         if go > 0:
             if go > 1:
-                motorG.backward(1)
+                lgpio.gpio_write(h, BACKWARD, 0)
+                lgpio.tx_pwm(h, FORWARD, FREQ, 100)
             else:
-                motorG.backward(go)
+                lgpio.gpio_write(h, BACKWARD, 0)
+                lgpio.tx_pwm(h, FORWARD, FREQ, int(99 * go) )
         elif go < 0:
             if go < -1:
-                motorG.forward(1)
+                lgpio.gpio_write(h, FORWARD, 0)
+                lgpio.tx_pwm(h, BACKWARD, FREQ, 100)
             else:
-                motorG.forward(-go)
+                lgpio.gpio_write(h, FORWARD, 0)
+                lgpio.tx_pwm(h, BACKWARD, FREQ, int(99 * -go) )
         else:
-            motorG.stop()
+            lgpio.gpio_write(h, FORWARD, 0)
+            lgpio.gpio_write(h, BACKWARD, 0)
+        
         msg_length = client.recv(HEADER).decode(FORMAT)
         msg_length = int(msg_length)
         msg = client.recv(msg_length).decode(FORMAT)
@@ -53,16 +69,21 @@ def send(msg):
         steer = float(msg)
         if steer > 0:
             if steer > 1:
-                motorS.backward(1)
+                lgpio.gpio_write(h, LEFT, 0)
+                lgpio.tx_pwm(h, RIGHT, FREQ, 100)
             else:
-                motorS.backward(steer)
+                lgpio.gpio_write(h, LEFT, 0)
+                lgpio.tx_pwm(h, RIGHT, FREQ, int(99 * steer) )
         elif steer < 0:
             if steer < -1:
-                motorS.forward(1)
+                lgpio.gpio_write(h, RIGHT, 0)
+                lgpio.tx_pwm(h, LEFT, FREQ, 100)
             else:
-                motorS.forward(-steer)
+                lgpio.gpio_write(h, RIGHT, 0)
+                lgpio.tx_pwm(h, LEFT, FREQ, int(99 * -steer) )
         else:
-            motorS.stop()
+            lgpio.gpio_write(h, RIGHT, 0)
+            lgpio.gpio_write(h, LEFT, 0)
 
 
 ret, frame = cap.read()
