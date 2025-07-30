@@ -10,7 +10,7 @@ HEADER = 64
 # the port I chose for the robot I chose it because there shouldn't be anything on it
 PORT = 5500
 #puts the server on the host ip adress
-SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = '192.168.1.163'
 #the address of the server
 ADDR = (SERVER, PORT)
 #the encoding format
@@ -26,6 +26,9 @@ FPS = 60
 go = 0
 #the steering vector negative is left positive is right
 steer = 0
+
+print(socket.AF_INET)
+print(socket.SOCK_STREAM)
 
 #initializes the joysticks
 pygame.init()
@@ -116,16 +119,17 @@ def handle_client(conn, addr):
             msg_length = int(msg_length)
             if msg_length > 4096:
                 msgb = b""
-                while msg_length > 4096:
+                while msg_length > 0:
                     pack = conn.recv(4096)
-                    msg_length -= 4096
+                    if not pack: break
+                    msg_length -= len(pack)
                     msgb += pack
-                pack = conn.recv(msg_length)
-                msgb += pack
                 msg = pickle.loads(msgb)
             else:
                 msg =  pickle.loads(conn.recv(msg_length))
+            print('y')
             controler_MSG(conn, addr)
+            print("x")
             cv2.imshow("result.jpg", msg)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -134,8 +138,8 @@ def handle_client(conn, addr):
     conn.close()
 
 def start():
-    server.listen()
-    print(f"[LISTENTING] Server is listenting on {SERVER}")
+    server.listen(1)
+    print(f"[LISTENTING] Server is listenting on {SERVER}:{PORT}")
     while True:
         conn, addr = server.accept()
         handle_client(conn, addr)
