@@ -71,24 +71,21 @@ server.bind(ADDR)
 def controler_MSG(conn, addr):
     global go
     global steer
-
     for event in pygame.event.get():
         if event.type == JOYAXISMOTION:
             print("AXISb : " + str(event.axis))
             if event.axis == 0:
                 if event.value > 0.2 or event.value < -0.2:
-                    print(event.value)
                     steer = -round((event.value), 2)
                 else:
                     steer = 0
             if event.axis == 5:
-                print(round((event.value * -1) - 2 * 0.5, 2))
+                
                 if round((event.value * -1) - 2 * 0.5, 2) > 0.1 or round((event.value * -1) - 2 * 0.5, 2) + 1 < -0.1:
                     go = round((event.value * -1) - 1 * 0.25, 2)
                 else:
                     go = 0
             if event.axis == 4:
-                print(round((event.value) + 2 * 0.5, 2))
                 if (round((event.value) + 2 * 0.5, 2)) > 0.1 or (round((event.value) + 2 * 0.5, 2)) < -0.1:
                     go = round((event.value) + 1 * 0.25, 2)
                 else:
@@ -96,6 +93,7 @@ def controler_MSG(conn, addr):
         if event.type == QUIT:
             pygame.quit()
     msg = str(go).encode(FORMAT)
+    print(f"go: {go}")
     msg_length = len(msg)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' ' * (HEADER - len(send_length))
@@ -103,6 +101,7 @@ def controler_MSG(conn, addr):
     conn.send(msg)
 
     msg = str(steer).encode(FORMAT)
+    print(f"steer: {steer}")
     msg_length = len(msg)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' ' * (HEADER - len(send_length))
@@ -127,12 +126,10 @@ def handle_client(conn, addr):
                 msg = pickle.loads(msgb)
             else:
                 msg =  pickle.loads(conn.recv(msg_length))
-            print('y')
-            controler_MSG(conn, addr)
-            print("x")
             cv2.imshow("result.jpg", msg)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+        controler_MSG(conn, addr)
         pygame.time.Clock().tick(FPS)
         
     conn.close()
